@@ -30,3 +30,15 @@ func NewSite(urlStr string) (Site, error) {
 		History:  history,
 	}, nil
 }
+
+func (site Site) GetHostname() string {
+	return site.Hostname
+}
+
+func (site Site) GetUrl() url.URL {
+	return site.Url
+}
+
+func (site Site) GetHistory() History {
+	return site.History
+}

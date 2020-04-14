@@ -11,32 +11,24 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-// Page is a structure used for serializing/deserializing data in Elasticsearch.
+// Page is a structure used for serializing/deserializing data.
 type Page struct {
 	Id            string              `json:"id"`
 	Url           *url.URL            `json:"url"`
 	StatusCode    int                 `json:"status_code"`
 	Headers       map[string][]string `json:"headers"`
-	HTML          string              `json:"html"`
+	HTML          string              `json:"-"`
 	Document      *goquery.Document   `json:"-"`
 	Title         string              `json:"title"`
 	Description   string              `json:"description"`
-	Content       string              `json:"content"`
 	Image         string              `json:"image,omitempty"`
-	InLinks       int                 `json:"in_links,omitempty"`
 	Links         []string            `json:"links"`
 	ExternalLinks []string            `json:"external_links"`
-	NoIndex       bool                `json:"no_index"`
 	Error         error               `json:"-"`
 }
 
-type PageRankUpdate struct {
-	PageRank float32 `json:"page_rank"`
-	InLinks  int     `json:"in_links"`
-}
-
 func (page Page) String() string {
-	return fmt.Sprintf("title: %s (%s) [%d]", page.Title, page.Url.String(), len(page.Content))
+	return fmt.Sprintf("Page: %s (%s)", page.Title, page.Url.String())
 }
 
 func ParsePage(hostname string, urlStr string) Page {
@@ -82,23 +74,18 @@ func ParsePage(hostname string, urlStr string) Page {
 	}
 
 	page.Document = doc
-	page = page.ParseLinks().ParseTitle().ParseDescription().ParseImage()
-
-	if noindex, exists := doc.Find("meta[name='robots'],meta[name='cloudshbot']").Attr("content"); exists && noindex == "noindex" {
-		log.Printf("NOINDEX: %v", url.String())
-		page.NoIndex = true
-	}
+	page = page.parseLinks().parseTitle().parseDescription().parseImage()
 
 	return page
 }
 
-func (page Page) ParseTitle() Page {
+func (page Page) parseTitle() Page {
 	title := page.Document.Find("title").First().Text()
 	page.Title = strings.TrimSpace(title)
 	return page
 }
 
-func (page Page) ParseDescription() Page {
+func (page Page) parseDescription() Page {
 	doc := page.Document
 
 	description := ""
@@ -114,7 +101,7 @@ func (page Page) ParseDescription() Page {
 	return page
 }
 
-func (page Page) ParseImage() Page {
+func (page Page) parseImage() Page {
 	imageURLStr := ""
 	exists := false
 	doc := page.Document
@@ -138,7 +125,7 @@ func getKeys(hash map[string]bool) []string {
 	return keys
 }
 
-func (page Page) ParseLinks() Page {
+func (page Page) parseLinks() Page {
 	doc := page.Document
 	doc.Find("script").Remove()
 	doc.Find("template").Remove()

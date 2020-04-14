@@ -9,6 +9,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type MySite struct {
+	longlegs.Site
+	ProcessedCount int
+}
+
+func (site MySite) Process(page longlegs.Page) longlegs.IIndex {
+	site.ProcessedCount++
+	printJSON(page)
+	return site
+}
+
 // indexCmd represents the index command
 var indexCmd = &cobra.Command{
 	Use:   "index",
@@ -24,21 +35,18 @@ to quickly create a Cobra application.`,
 		fmt.Println("Indexing")
 
 		urlStr := "https://candland.net"
-		indexLimit := 1
+		indexLimit := 9
 
 		site, err := longlegs.NewSite(urlStr)
 		if err != nil {
 			panic(err)
 		}
 
-		processDebug := func(page longlegs.Page) longlegs.Page {
-			printJSON(page)
-			return page
-		}
+		mySite := MySite{Site: site}
 
-		site.Index(indexLimit, longlegs.Pipeline(processDebug))
+		mySite = longlegs.Index(mySite, indexLimit).(MySite)
 
-		printJSON(site)
+		printJSON(mySite)
 	},
 }
 
