@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8"/>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+    Notes about things | candland.net
+  </title>
+  <meta content="Notes about things Recent posts Jupyter Labs and Ruby Dusty Candland | Thu Apr 09 2020 | asdf, bundler, jupyter, ruby Wanted to setup Jupyter for Ruby to test..." name="description"/>
+
+  <meta property="og:site_name" content="candland.net" />
+  <meta property="og:title" content="Notes about things" />
+  <meta property="og:description" content="Notes about things Recent posts Jupyter Labs and Ruby Dusty Candland | Thu Apr 09 2020 | asdf, bundler, jupyter, ruby Wanted to setup Jupyter for Ruby to test..." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://candland.net/" />
+  <meta property="og:image" content="https://candland.net/assets/images/candland-icon.png" />
+  <meta property="fb:app_id" content="" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="candland" />
+  <meta name="twitter:title" content="Notes about things" />
+  <meta name="twitter:description" content="Notes about things Recent posts Jupyter Labs and Ruby Dusty Candland | Thu Apr 09 2020 | asdf, bundler, jupyter, ruby Wanted to setup Jupyter for Ruby to test..." />
+  <meta name="twitter:image" content="https://candland.net/assets/images/candland-icon.png" />
+
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-490965-3"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-490965-3');
+  </script>
+
+
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet"/>
+  <link href="/assets/css/main.css" rel="stylesheet"/>
+  <link rel="me" href="https://twitter.com/candland"/>
+  <link href="https://candland.net/" rel="canonical"/>
+  <link href="https://candland.net/feed.xml" rel="alternate" title="candland.net" type="application/rss+xml"/>
+  <!-- Favicons
+  -->
+  <link href="/favicon.ico" rel="icon" type="image/x-icon"/>
+  <link href="/assets/images/favicon.png" rel="icon" sizes="32x32" type="image/png"/>
+  <link href="/assets/images/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+  <meta content="/assets/images/mstile-144x144.png" name="msapplication-TileImage"/>
+  <meta content="#00aba9" name="msapplication-TileColor"/>
+
+  <link rel="webmention" href="https://webmention.io/candland.net/webmention" />
+  <link rel="pingback" href="https://webmention.io/candland.net/xmlrpc" />
+</head>
+
+  <body>
+    <div class="container mx-auto">
+      <div class="flex flex-wrap lg:flex-row">
+        <div class="w-full lg:w-1/4 p-4">
+          <div class="">
+  <nav class="flex flex-col justify-between mb-4">
+    <div class="h-card flex-no-shrink text-center lg:my-8">
+      <a class="" href="/">
+        <img class="u-photo w-32 mx-auto rounded-full border-2 border-black lg:mb-3" src="/assets/images/profile.jpg" alt="Profile picture" style=""/>
+      </a>
+      <a class="p-name u-url text-black font-bold" rel="me" href="/">
+        Dusty Candland
+      </a>
+    </div>
+    <div class="p-4 block lg:hidden" data-menu="navbarHeader">
+      <button class="flex items-center px-3 py-2 border rounded text-teal-lighter border-teal-light hover:text-white hover:border-white">
+        <svg class="h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"/></svg>
+      </button>
+    </div>
+    <div class="hidden w-full lg:w-auto block pt-5 lg:flex collapse navbar-collapse" id="navbarHeader">
+      <ul class="flex flex-col justify-start mr-auto border-t border-solid lg:border-none"><li class="px-2 py-1 border-b border-solid lg:border-none  text-bold">
+          <a href="/">Home</a>
+        </li><li class="px-2 py-1 border-b border-solid lg:border-none ">
+          <a href="/now/">Now</a>
+        </li><li class="px-2 py-1 border-b border-solid lg:border-none ">
+          <a href="/about/">About Me</a>
+        </li><li class="px-2 py-1 border-b border-solid lg:border-none ">
+          <a href="/contact/">Contact Me</a>
+        </li><li class="px-2 py-1 border-b border-solid lg:border-none ">
+          <a href="/search/">Search</a>
+        </li><li class="hidden lg:block px-2 py-1 border-b border-solid lg:border-none">
+          <a href="https://stubborngoods.com">Stubborn Goods</a>
+        </li><li class="hidden lg:block px-2 py-1 border-b border-solid lg:border-none">
+          <a href="https://red27.net">Red27</a>
+        </li><li class="hidden lg:block px-2 py-1 border-b border-solid lg:border-none">
+          <a href="https://wpsupporthq.com">WP Support HQ</a>
+        </li><li class="hidden lg:block px-2 py-1 border-b border-solid lg:border-none">
+          <a href="https://commandwp.com">CommandWP</a>
+        </li><li class="hidden lg:block px-2 py-1 border-b border-solid lg:border-none">
+          <a href="https://cloudsh.com">CloudSh</a>
+        </li><li class="hidden lg:block px-2 py-1 border-b border-solid lg:border-none">
+          <a href="https://proofreader.io">Proofreader</a>
+        </li><li class="hidden lg:block px-2 py-1 border-b border-solid lg:border-none">
+          <a href="https://smartprompt.com">SmartPrompt</a>
+        </li><li class="hidden lg:block px-2 py-1 border-b border-solid lg:border-none">
+          <a href="https://roomer.io">Roomer</a>
+        </li><li class="px-2 py-1 border-b border-solid lg:border-none ">
+          <a class="" rel="me" href="https://twitter.com/intent/user?screen_name=candland" target="_blank">
+            <i class="fa fa-twitter"></i>
+          </a>
+          <a class="" rel="me" href="https://github.com/candland" target="_blank">
+            <i class="fa fa-github"></i>
+          </a>
+          <a class="" rel="me" href="https://mastodon.social/@candland" target="_blank">
+            <i class="fa fa-mastodon"></i>M
+          </a>
+          <a class="" rel="me" href="https://flickr.com/people/candland" target="_blank">
+            <i class="fa fa-flickr"></i>
+          </a>
+          <a class="" rel="me" href="https://linkedin.com/in/candland" target="_blank">
+            <i class="fa fa-linkedin"></i>
+          </a>
+          <a class="" rel="me" href="https://dev.to/candland" target="_blank">
+            <i class="fa fa-user"></i>
+          </a>
+          <a class="" href="http://feeds.feedburner.com/candlandcode">
+            <i class="fa fa-feed"></i>
+          </a>
+        </li>
+
+        <li class="px-2 py-4 border-b border-solid lg:border-none ">
+          <form style="padding:3px;text-align:center;" action="https://tinyletter.com/candland" method="post" target="popupwindow" onsubmit="window.open('https://tinyletter.com/candland', 'popupwindow', 'scrollbars=yes,width=800,height=600');return true">
+          <div class="">
+            <label for="tlemail">Updates &amp; News</label>
+            <input type="text" name="email" placeholder="Your email" id="tlemail" class="" />
+            <input type="hidden" value="1" name="embed"/>
+          </div>
+          <input type="submit" value="Subscribe" class="button text-sm"/>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</div>
+<script>
+  'use strict';
+
+  (function() {
+    function setup_menu(script) {
+      var els = document.querySelectorAll("div[data-menu]");
+      if (els.length > 0) {
+        var el = els[0];
+        el.addEventListener('click', function(e) {
+          var id = e.currentTarget.getAttribute('data-menu');
+          var el = document.querySelectorAll("#" + id)[0];
+          el.classList.toggle("hidden");
+        });
+      }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", function() { setup_menu() });
+    } else {
+      setup_menu();
+    }
+  })()
+</script>
+
+        </div>
+        <div class="w-full lg:w-3/4 p-4">
+
+<article class="h-feed">
+  <h1 class="text-center p-name">Notes about things</h1>
+
+  <div>
+    <h2>Recent posts</h2>
+
+      <article class="h-entry">
+  <header>
+    <a class="u-url p-name text-xl" href="/ruby/2020/04/09/jupyter-labs-and-ruby.html">
+      Jupyter Labs and Ruby
+    </a>
+    <div class="text-gray-500">
+      <span class="hidden"><a class="p-author h-card text-gray-500" href="https://candland.net">Dusty Candland</a> |</span>
+      <time class="dt-published" datetime="2020-04-09T06:00:00.000Z">Thu Apr 09 2020</time> |
+      <span class=" p-category">asdf, bundler, jupyter, ruby</span>
+    </div>
+  </header>
+  <p class="p-summary">Wanted to setup Jupyter for Ruby to test out some ML stuff. Here's the setup I used and some issues I ran into.
+
+</p>
+</article>
+
+
+      <article class="h-entry">
+  <header>
+    <a class="u-url p-name text-xl" href="/rails/2020/02/22/devise-jwt-authentication-in-rails.html">
+      Devise JWT Authentication in Rails
+    </a>
+    <div class="text-gray-500">
+      <span class="hidden"><a class="p-author h-card text-gray-500" href="https://candland.net">Dusty Candland</a> |</span>
+      <time class="dt-published" datetime="2020-02-22T00:00:00.000Z">Sat Feb 22 2020</time> |
+      <span class=" p-category">rails, devise, jwt, cancancan</span>
+    </div>
+  </header>
+  <p class="p-summary">
+Here's one approach to adding API authentication to a Rails application that's already setup with <a href="https://github.com/heartcombo/devise">Devise</a> and <a href="https://github.com/CanCanCommunity/cancancan">Cancancan</a>.  We'll add a Warden strategy to process a Token if it's passed in the request.
+
+</p>
+</article>
+
+
+      <article class="h-entry">
+  <header>
+    <a class="u-url p-name text-xl" href="/2020/02/15/ladders-of-wealth.html">
+      Wealth Creation Ladder
+    </a>
+    <div class="text-gray-500">
+      <span class="hidden"><a class="p-author h-card text-gray-500" href="https://candland.net">Dusty Candland</a> |</span>
+      <time class="dt-published" datetime="2020-02-15T00:00:00.000Z">Sat Feb 15 2020</time> |
+      <span class=" p-category"></span>
+    </div>
+  </header>
+  <p class="p-summary">
+
+<a href="https://nathanbarry.com/wealth-creation/">The ladders of wealth creation: a step-by-step road map to building wealth</a> by Nathan Barry clicked with me. It provided a good framework to think about where I'm at and where I'm going. Thank you Nathan!
+
+Below is a summary of points and where I'm at, my journey, and moving forward. <strong>Please read his article!</strong>
+
+</p>
+</article>
+
+
+      <article class="h-entry">
+  <header>
+    <a class="u-url p-name text-xl" href="/eleventy/2019/12/27/eleventy-webmentions.html">
+      Eleventy Webmentions
+    </a>
+    <div class="text-gray-500">
+      <span class="hidden"><a class="p-author h-card text-gray-500" href="https://candland.net">Dusty Candland</a> |</span>
+      <time class="dt-published" datetime="2019-12-27T00:00:00.000Z">Fri Dec 27 2019</time> |
+      <span class=" p-category">eleventy, 11ty, webmentions, bridgy, microformats</span>
+    </div>
+  </header>
+  <p class="p-summary">
+Owning my content and making it easy to post are both important to me and I've been
+slowly working to do that more. Moving my blog to 11ty was a big step in that direction.
+Now with webmentions and bridgy it's easier to share content. This post talks about
+what I've setup to connect my blog to the indieweb and some of the closed networks.
+
+</p>
+</article>
+
+
+      <article class="h-entry">
+  <header>
+    <a class="u-url p-name text-xl" href="/rails/2019/11/07/rails-multiple-uploads.html">
+      Rails 6 and multiple uploads
+    </a>
+    <div class="text-gray-500">
+      <span class="hidden"><a class="p-author h-card text-gray-500" href="https://candland.net">Dusty Candland</a> |</span>
+      <time class="dt-published" datetime="2019-11-07T00:00:00.000Z">Thu Nov 07 2019</time> |
+      <span class=" p-category">rails, rails6, stimulus</span>
+    </div>
+  </header>
+  <p class="p-summary">
+[Active Storage] is awesome for uploading images, but handling <code>has_many_attached</code> needs
+some additional stuff if you want be able to add and remove specific images.
+
+This is how I setup multiple uploads so files can be added and deleted without re-uploading
+the files.
+
+</p>
+</article>
+
+
+      <article class="h-entry">
+  <header>
+    <a class="u-url p-name text-xl" href="/rails/2019/11/07/rails_6_emails_with_inky.html">
+      Rails 6 Inky Emails
+    </a>
+    <div class="text-gray-500">
+      <span class="hidden"><a class="p-author h-card text-gray-500" href="https://candland.net">Dusty Candland</a> |</span>
+      <time class="dt-published" datetime="2019-11-07T00:00:00.000Z">Thu Nov 07 2019</time> |
+      <span class=" p-category">rails, rails6, email, inky, foundation emails</span>
+    </div>
+  </header>
+  <p class="p-summary">
+Making emails look nice is a huge pain! [Foundation Emails] help by
+giving you short HTML tags that are expanded into HTML for emails and
+nice classes for styling.
+
+</p>
+</article>
+
+
+      <article class="h-entry">
+  <header>
+    <a class="u-url p-name text-xl" href="/commandwp/2019/11/07/getting_early_adopters.html">
+      Getting early adopters for CommandWP
+    </a>
+    <div class="text-gray-500">
+      <span class="hidden"><a class="p-author h-card text-gray-500" href="https://candland.net">Dusty Candland</a> |</span>
+      <time class="dt-published" datetime="2019-11-07T00:00:00.000Z">Thu Nov 07 2019</time> |
+      <span class=" p-category">pricing, saas</span>
+    </div>
+  </header>
+  <p class="p-summary">
+[CommandWP] is getting to a point where I'd like to get some early adopters using it.
+I'm not sure what a good approach might be. Here's what I'm thinking about.
+
+</p>
+</article>
+
+
+      <article class="h-entry">
+  <header>
+    <a class="u-url p-name text-xl" href="/rails/2019/08/30/add_webpack_to_rails5.html">
+      Add Webpack to Rails 5
+    </a>
+    <div class="text-gray-500">
+      <span class="hidden"><a class="p-author h-card text-gray-500" href="https://candland.net">Dusty Candland</a> |</span>
+      <time class="dt-published" datetime="2019-08-30T00:00:00.000Z">Fri Aug 30 2019</time> |
+      <span class=" p-category">rails, rails5, webpack, webpacker, scss, bootstrap, font-awesome</span>
+    </div>
+  </header>
+  <p class="p-summary">
+The push to use webpack with rails is getting too much to resist!
+
+You can setup some good stuff with sprockets, but it's a pain and
+a lot of it doesn't seem too updated.
+
+So... to get things like good ES6 support, minification, easier
+script managment with Yarn, and PostCSS support; It's time for
+webpacker
+
+</p>
+</article>
+
+
+      <article class="h-entry">
+  <header>
+    <a class="u-url p-name text-xl" href="/eleventy/2019/05/22/11ty_404_page_template.html">
+      11ty 404 page template
+    </a>
+    <div class="text-gray-500">
+      <span class="hidden"><a class="p-author h-card text-gray-500" href="https://candland.net">Dusty Candland</a> |</span>
+      <time class="dt-published" datetime="2019-05-22T08:38:42.000Z">Wed May 22 2019</time> |
+      <span class=" p-category">eleventy</span>
+    </div>
+  </header>
+  <p class="p-summary">
+Example 404 page for an <a href="https://11ty.io">11ty</a> site.
+
+</p>
+</article>
+
+
+      <article class="h-entry">
+  <header>
+    <a class="u-url p-name text-xl" href="/rails/2019/03/13/rails-turbolinks-not-firing-js-on-load.html">
+      Rails Turbolinks not firing JS on load
+    </a>
+    <div class="text-gray-500">
+      <span class="hidden"><a class="p-author h-card text-gray-500" href="https://candland.net">Dusty Candland</a> |</span>
+      <time class="dt-published" datetime="2019-03-13T00:00:00.000Z">Wed Mar 13 2019</time> |
+      <span class=" p-category">rails, turbolinks, javascript</span>
+    </div>
+  </header>
+  <p class="p-summary"></p>
+</article>
+
+
+		<a href="/posts/">All Posts</a>
+  </div>
+
+  <div>
+
+      <article class="h-entry rounded-lg border border-gray-300 bg-gray-100 p-8 my-4">
+  <div class="e-content">
+    <a class="u-url p-name text-xl text-black" href="/snips/remarkbox-link/">
+
+        <p>Remarkbox: Hosted comments. <a href="https://www.remarkbox.com/" title="https://www.remarkbox.com/">https://www.remarkbox.com/</a></p>
+
+
+    </a>
+    <span class=" p-category">comments, jamstack</span>
+  </div>
+  <div class="text-gray-500">
+    <span class="hidden"><a class="p-author h-card text-gray-500" href="https://candland.net">Dusty Candland</a> |</span>
+    <time class="dt-published" datetime="2020-04-16T14:13:15.008Z">Thu Apr 16 2020</time> |
+  </div>
+</article>
+
+
+      <article class="h-entry rounded-lg border border-gray-300 bg-gray-100 p-8 my-4">
+  <div class="e-content">
+    <a class="u-url p-name text-xl text-black" href="/snips/2019-12-20-15-04/">
+
+        <p>Testing snips and <a href="https://brid.gy/about">brid.gy</a>
+some more
+alsdjf</p>
+
+
+    </a>
+    <span class=" p-category">blog, indieweb</span>
+  </div>
+  <div class="text-gray-500">
+    <span class="hidden"><a class="p-author h-card text-gray-500" href="https://candland.net">Dusty Candland</a> |</span>
+    <time class="dt-published" datetime="2019-12-20T00:00:00.000Z">Fri Dec 20 2019</time> |
+  </div>
+</article>
+
+
+		<a href="/snips/">All Snips</a>
+  </div>
+
+  <div class="mt-8 text-gray-500">
+    <time itemprop="lastPublished" datetime="2020-04-16T14:13:40.106Z">Published: Thu Apr 16 2020</time>
+  </div>
+</article>
+
+        </div>
+      </div>
+    </div>
+
+    <footer class="container mx-auto">
+  <div class="flex flex-row justify-between pt-4 lg:my-5 border-top text-gray-600 text-sm">
+    <div class="">
+      <small class="d-block mb-3 text-muted">&copy; 2006 - 2020 candland.net</small>
+    </div>
+    <div class="">
+      <nav class="justify-end">
+      </nav>
+    </div>
+  </div>
+</footer>
+
+
+    <!-- JavaScript -->
+    <script src="/assets/js/index.js"></script>
+  </body>
+</html>

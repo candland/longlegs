@@ -37,7 +37,7 @@ func Index(site IIndex, indexLimit int) IIndex {
 	nextUrl, hasNext := site.Next()
 	if hasNext {
 		log.Printf("Indexing page %s\n", nextUrl)
-		page := ParsePage(site.GetHostname(), nextUrl)
+		page := NewPageFromUrl(nextUrl)
 		site.GetHistory()[nextUrl].Crawled = true
 
 		if page.Error == nil {

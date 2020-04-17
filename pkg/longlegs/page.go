@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -31,7 +32,7 @@ func (page Page) String() string {
 	return fmt.Sprintf("Page: %s (%s)", page.Title, page.Url.String())
 }
 
-func ParsePage(hostname string, urlStr string) Page {
+func NewPageFromUrl(urlStr string) Page {
 
 	page := Page{Id: urlStr}
 
@@ -71,6 +72,38 @@ func ParsePage(hostname string, urlStr string) Page {
 	if err != nil {
 		log.Printf("Failed to Parse %s\n", url.String())
 		return Page{Error: err}
+	}
+
+	page.Document = doc
+	page = page.parseLinks().parseTitle().parseDescription().parseImage()
+
+	return page
+}
+
+func NewPageFromFile(urlStr string, path string) Page {
+	page := Page{}
+
+	url, err := url.Parse(urlStr)
+	if err != nil {
+		log.Printf("Invalid URL: %s\n", urlStr)
+		page.Error = err
+		return page
+	}
+	page.Id = CanonicalizeUrl(url)
+	page.Url = url
+
+	reader, err := os.Open(path)
+	if err != nil {
+		page.Error = err
+		return page
+	}
+	defer reader.Close()
+
+	doc, err := goquery.NewDocumentFromReader(reader)
+	if err != nil {
+		log.Printf("Failed to Parse %s\n", url.String())
+		page.Error = err
+		return page
 	}
 
 	page.Document = doc
