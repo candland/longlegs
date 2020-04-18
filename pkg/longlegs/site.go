@@ -12,7 +12,7 @@ type Site struct {
 }
 
 func NewSite(urlStr string) (Site, error) {
-	url, err := url.Parse(urlStr) // TODO canonicalize
+	url, err := url.Parse(urlStr)
 	if err != nil {
 		log.Printf("Invalid URL: %s\n", urlStr)
 		log.Fatal(err)
@@ -41,4 +41,23 @@ func (site Site) GetUrl() url.URL {
 
 func (site Site) GetHistory() History {
 	return site.History
+}
+
+func (site Site) GetStatus() (int, int, int) {
+	var left, done, level = 0, 0, 100000
+
+	// calc counts
+	for k := range site.GetHistory() {
+		hist := site.GetHistory()[k]
+		if hist.Crawled {
+			done++
+		} else {
+			left++
+			if hist.Level < level {
+				level = hist.Level
+			}
+		}
+	}
+
+	return left, done, level
 }

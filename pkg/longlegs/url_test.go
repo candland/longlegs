@@ -7,29 +7,29 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTest(t *testing.T) {
-	assert.Equal(t, 1, 1, "equal")
-}
-
-func TestUrlCleanUp(t *testing.T) {
-	base, _ := url.Parse("http://www.csh.com")
-
-	assert.Equal(t,
-		"http://www.csh.com/",
-		ResolvedURL(base, "http://www.csh.com/?thing=true#go").String(),
-		"equal")
-}
-
-func TestUrlMlDomain(t *testing.T) {
-	base, _ := url.Parse("http://toflix.ml/Star-Wars/")
-
-	assert.Equal(t,
-		"http://toflix.ml/",
-		ResolvedURL(base, "http://toflix.ml/?thing=true#go").String(),
-		"equal")
-
-	assert.Equal(t,
-		"http://toflix.ml/Star-Wars/Star-Wars/",
-		ResolvedURL(base, "Star-Wars/").String(),
-		"equal")
+func TestResolveURL(t *testing.T) {
+	t.Parallel() // marks TLog as capable of running in parallel with other tests
+	tests := []struct {
+		base     string
+		url      string
+		expected string
+	}{
+		{"http://www.csh.com/", "http://www.csh.com/?thing=true#go", "http://www.csh.com/"},
+		{"http://toflix.ml/Star-Wars/", "http://toflix.ml/?thing=true#go", "http://toflix.ml/"},
+		{"http://toflix.ml/Star-Wars/", "Star-Wars/", "http://toflix.ml/Star-Wars/Star-Wars/"},
+		{"https://candland.net", "https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css", "https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"},
+		{"https://candland.net", "/assets/css/main.css", "https://candland.net/assets/css/main.css"},
+		{"https://candland.net", "/assets/images/apple-touch-icon.png", "https://candland.net/assets/images/apple-touch-icon.png"},
+		// {"https://candland.net", "", ""},
+	}
+	for _, tt := range tests {
+		tt := tt // NOTE: https://github.com/golang/go/wiki/CommonMistakes#using-goroutines-on-loop-iterator-variables
+		t.Run(tt.url, func(t *testing.T) {
+			t.Parallel() // marks each test case as capable of running in parallel with each other
+			t.Log(tt.url)
+			baseUrl, err := url.Parse(tt.base)
+			assert.Nil(t, err)
+			assert.Equal(t, tt.expected, ResolveURL(baseUrl, tt.url).String())
+		})
+	}
 }

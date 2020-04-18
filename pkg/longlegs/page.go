@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -26,13 +27,14 @@ type Page struct {
 	Links         []string            `json:"links"`
 	ExternalLinks []string            `json:"external_links"`
 	Error         error               `json:"-"`
+	Ms            int64               `json:"ms"`
 }
 
 func (page Page) String() string {
 	return fmt.Sprintf("Page: %s (%s)", page.Title, page.Url.String())
 }
 
-func NewPageFromUrl(urlStr string) Page {
+func NewPageFromUrl(site IIndex, urlStr string) Page {
 
 	page := Page{Id: urlStr}
 
@@ -45,13 +47,25 @@ func NewPageFromUrl(urlStr string) Page {
 	page.Id = CanonicalizeUrl(url)
 	page.Url = url
 
-	resp, err := http.Get(url.String())
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		log.Printf("Failed to Request %s\n", url.String())
+		page.Error = err
+		return page
+	}
+
+	req.Header.Set("User-Agent", site.UserAgent())
+
+	start := time.Now()
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("Failed to Request %s\n", url.String())
 		page.Error = err
 		return page
 	}
 	defer resp.Body.Close()
+	page.Ms = time.Now().Sub(start).Milliseconds()
 
 	page.StatusCode = resp.StatusCode
 	if resp.StatusCode != 200 {
@@ -160,8 +174,9 @@ func getKeys(hash map[string]bool) []string {
 
 func (page Page) parseLinks() Page {
 	doc := page.Document
-	doc.Find("script").Remove()
-	doc.Find("template").Remove()
+	// TODO Check for other destructive ops
+	// doc.Find("script").Remove()
+	// doc.Find("template").Remove()
 
 	links := doc.Find("a").Map(func(i int, s *goquery.Selection) string {
 		href, exists := s.Attr("href")
@@ -175,7 +190,7 @@ func (page Page) parseLinks() Page {
 	externalUniq := map[string]bool{}
 
 	for _, u := range links {
-		rurl := ResolvedURL(page.Url, u)
+		rurl := ResolveURL(page.Url, u)
 		if rurl != nil {
 			if page.Url.Hostname() == rurl.Hostname() {
 				linksUniq[rurl.String()] = true

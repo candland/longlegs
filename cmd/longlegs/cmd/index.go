@@ -3,6 +3,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/candland/longlegs/pkg/longlegs"
@@ -16,7 +17,8 @@ type MySite struct {
 
 func (site MySite) Process(page longlegs.Page) longlegs.IIndex {
 	site.ProcessedCount++
-	printJSON(page)
+	log.Printf("  %s took %d ms", page.Id, page.Ms)
+	// printJSON(page)
 	return site
 }
 
@@ -35,7 +37,7 @@ to quickly create a Cobra application.`,
 		fmt.Println("Indexing")
 
 		urlStr := "https://candland.net"
-		indexLimit := 9
+		indexLimit := 90
 
 		site, err := longlegs.NewSite(urlStr)
 		if err != nil {
@@ -44,7 +46,7 @@ to quickly create a Cobra application.`,
 
 		mySite := MySite{Site: site}
 
-		mySite = longlegs.Index(mySite, indexLimit).(MySite)
+		mySite = longlegs.Index(mySite, 2, indexLimit).(MySite)
 
 		printJSON(mySite)
 	},

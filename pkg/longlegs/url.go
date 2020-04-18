@@ -18,7 +18,7 @@ func CanonicalizeUrl(url *url.URL) string {
 	return can
 }
 
-func ResolvedURL(base *url.URL, urlStr string) *url.URL {
+func ResolveURL(base *url.URL, urlStr string) *url.URL {
 	u, err := url.Parse(urlStr)
 	if err != nil {
 		log.Print(err)

@@ -6,11 +6,17 @@ import (
 )
 
 type IIndex interface {
-	Next() (string, bool)
+	Next(int) (string, bool)
 	Process(Page) IIndex
 	GetHostname() string
 	GetUrl() url.URL
 	GetHistory() History
+	GetStatus() (int, int, int)
+	UserAgent() string
+}
+
+func (site Site) UserAgent() string {
+	return "longlegs v0"
 }
 
 func (site Site) Process(page Page) IIndex {
@@ -19,35 +25,22 @@ func (site Site) Process(page Page) IIndex {
 }
 
 // IndexSite crawls a site and builds the index.
-func Index(site IIndex, indexLimit int) IIndex {
-	var (
-		done = 0
-		left = 0
-	)
+func Index(site IIndex, depth int, indexLimit int) IIndex {
+	left, done, level := site.GetStatus()
 
-	// calc counts
-	for k := range site.GetHistory() {
-		if site.GetHistory()[k].Crawled {
-			done++
-		} else {
-			left++
-		}
-	}
-
-	nextUrl, hasNext := site.Next()
+	nextUrl, hasNext := site.Next(level)
 	if hasNext {
-		log.Printf("Indexing page %s\n", nextUrl)
-		page := NewPageFromUrl(nextUrl)
+		log.Printf("Indexing page %s at %d level\n", nextUrl, level)
+		page := NewPageFromUrl(site, nextUrl)
 		site.GetHistory()[nextUrl].Crawled = true
 
 		if page.Error == nil {
-			log.Printf("TYPE: %T\n", site)
-			site = site.Process(page) // TODO FIX THIS
+			site = site.Process(page)
 
 			for _, link := range page.Links {
 				if _, exists := site.GetHistory()[link]; !exists {
-					log.Printf("Adding %s to history.", link)
-					site.GetHistory()[link] = &HistoryEntry{Crawled: false}
+					log.Printf("Adding %s to history %d level.", link, level+1)
+					site.GetHistory()[link] = &HistoryEntry{Crawled: false, Level: level + 1}
 				}
 
 				site.GetHistory()[link].Refs++
@@ -57,22 +50,25 @@ func Index(site IIndex, indexLimit int) IIndex {
 		}
 	}
 
-	log.Printf("Indexed %d with %d remaining max of %d.\n", done, left, indexLimit)
+	left, done, level = site.GetStatus()
 
-	if hasNext && done < indexLimit {
-		site = Index(site, indexLimit)
+	log.Printf("Indexed %d with %d remaining max of %d depth of %d.\n", done, left, indexLimit, depth)
+
+	if hasNext && done < indexLimit && level <= depth {
+		site = Index(site, depth, indexLimit)
 	}
 	return site
 }
 
 // Next: look for next page
-func (site Site) Next() (string, bool) {
+func (site Site) Next(level int) (string, bool) {
 	var (
 		next    = ""
 		hasNext = false
 	)
 	for k := range site.History {
-		if site.History[k].Crawled == false {
+		hist := site.History[k]
+		if hist.Crawled == false && hist.Level == level {
 			next = k
 			hasNext = true
 			break
