@@ -174,9 +174,6 @@ func getKeys(hash map[string]bool) []string {
 
 func (page Page) parseLinks() Page {
 	doc := page.Document
-	// TODO Check for other destructive ops
-	// doc.Find("script").Remove()
-	// doc.Find("template").Remove()
 
 	links := doc.Find("a").Map(func(i int, s *goquery.Selection) string {
 		href, exists := s.Attr("href")

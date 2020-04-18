@@ -21,7 +21,7 @@ func TestLoadPageFromFile(t *testing.T) {
 
 func NoTestLoadPageFromUrl(t *testing.T) {
 	assert.Equal(t, 1, 1, "equal")
-	page := NewPageFromUrl(Site{}, "https://candland.net")
+	page := NewPageFromUrl(&Site{}, "https://candland.net")
 	assert.Nil(t, page.Error)
 
 	assert.Equal(t, "candland.net", page.Id)

@@ -11,11 +11,11 @@ import (
 )
 
 type MySite struct {
-	longlegs.Site
+	*longlegs.Site
 	ProcessedCount int
 }
 
-func (site MySite) Process(page longlegs.Page) longlegs.IIndex {
+func (site *MySite) Process(page longlegs.Page) longlegs.IIndex {
 	site.ProcessedCount++
 	log.Printf("  %s took %d ms", page.Id, page.Ms)
 	// printJSON(page)
@@ -44,9 +44,9 @@ to quickly create a Cobra application.`,
 			panic(err)
 		}
 
-		mySite := MySite{Site: site}
+		mySite := &MySite{Site: site}
 
-		mySite = longlegs.Index(mySite, 2, indexLimit).(MySite)
+		mySite = longlegs.Index(mySite, 2, indexLimit).(*MySite)
 
 		printJSON(mySite)
 	},

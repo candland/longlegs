@@ -15,11 +15,11 @@ type IIndex interface {
 	UserAgent() string
 }
 
-func (site Site) UserAgent() string {
+func (site *Site) UserAgent() string {
 	return "longlegs v0"
 }
 
-func (site Site) Process(page Page) IIndex {
+func (site *Site) Process(page Page) IIndex {
 	log.Println("Default page processor. Override to process your pages.")
 	return site
 }
@@ -35,7 +35,7 @@ func Index(site IIndex, depth int, indexLimit int) IIndex {
 		site.GetHistory()[nextUrl].Crawled = true
 
 		if page.Error == nil {
-			site = site.Process(page)
+			site.Process(page)
 
 			for _, link := range page.Links {
 				if _, exists := site.GetHistory()[link]; !exists {
@@ -55,13 +55,13 @@ func Index(site IIndex, depth int, indexLimit int) IIndex {
 	log.Printf("Indexed %d with %d remaining max of %d depth of %d.\n", done, left, indexLimit, depth)
 
 	if hasNext && done < indexLimit && level <= depth {
-		site = Index(site, depth, indexLimit)
+		Index(site, depth, indexLimit)
 	}
 	return site
 }
 
 // Next: look for next page
-func (site Site) Next(level int) (string, bool) {
+func (site *Site) Next(level int) (string, bool) {
 	var (
 		next    = ""
 		hasNext = false
