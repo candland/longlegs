@@ -48,13 +48,13 @@ func Index(site IIndex, depth int, indexLimit int) IIndex {
 				site.GetHistory()[link].Refs++
 			}
 		} else {
-			panic(page.Error)
+			log.Warn().Err(page.Error).Msgf("Skipping %s", nextUrl)
 		}
 	}
 
 	left, done, level = site.GetStatus()
 
-	log.Debug().Msgf("Indexed %d with %d remaining max of %d depth of %d", done, left, indexLimit, depth)
+	log.Info().Msgf("Indexed %d with %d remaining max of %d depth of %d", done, left, indexLimit, depth)
 
 	if hasNext && done < indexLimit && level <= depth {
 		Index(site, depth, indexLimit)
