@@ -1,8 +1,9 @@
 package longlegs
 
 import (
-	"log"
 	"net/url"
+
+	"github.com/rs/zerolog/log"
 )
 
 type IIndex interface {
@@ -16,11 +17,11 @@ type IIndex interface {
 }
 
 func (site *Site) UserAgent() string {
-	return "longlegs v0"
+	return "longlegs/0"
 }
 
 func (site *Site) Process(page Page) IIndex {
-	log.Println("Default page processor. Override to process your pages.")
+	log.Warn().Msg("Default page processor. Override to process your pages.")
 	return site
 }
 
@@ -29,8 +30,9 @@ func Index(site IIndex, depth int, indexLimit int) IIndex {
 	left, done, level := site.GetStatus()
 
 	nextUrl, hasNext := site.Next(level)
+
 	if hasNext {
-		log.Printf("Indexing page %s at %d level\n", nextUrl, level)
+		log.Info().Msgf("Indexing page %s at %d level", nextUrl, level)
 		page := NewPageFromUrl(site, nextUrl)
 		site.GetHistory()[nextUrl].Crawled = true
 
@@ -39,7 +41,7 @@ func Index(site IIndex, depth int, indexLimit int) IIndex {
 
 			for _, link := range page.Links {
 				if _, exists := site.GetHistory()[link]; !exists {
-					log.Printf("Adding %s to history %d level.", link, level+1)
+					log.Debug().Msgf("Adding %s to history %d level.", link, level+1)
 					site.GetHistory()[link] = &HistoryEntry{Crawled: false, Level: level + 1}
 				}
 
@@ -52,7 +54,7 @@ func Index(site IIndex, depth int, indexLimit int) IIndex {
 
 	left, done, level = site.GetStatus()
 
-	log.Printf("Indexed %d with %d remaining max of %d depth of %d.\n", done, left, indexLimit, depth)
+	log.Debug().Msgf("Indexed %d with %d remaining max of %d depth of %d", done, left, indexLimit, depth)
 
 	if hasNext && done < indexLimit && level <= depth {
 		Index(site, depth, indexLimit)

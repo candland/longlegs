@@ -3,11 +3,14 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
+	"time"
 
 	"github.com/candland/longlegs/pkg/longlegs"
 	"github.com/spf13/cobra"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 type MySite struct {
@@ -22,6 +25,12 @@ func (site *MySite) Process(page longlegs.Page) longlegs.IIndex {
 	return site
 }
 
+/// flags
+var depth int
+var limit int
+
+var debug bool
+
 // indexCmd represents the index command
 var indexCmd = &cobra.Command{
 	Use:   "index",
@@ -34,25 +43,27 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		fmt.Println("Indexing")
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339})
 
-		urlStr := "https://candland.net"
-		indexLimit := 90
+		log.Info().Msgf("Indexing %s", args[0])
 
-		site, err := longlegs.NewSite(urlStr)
+		site, err := longlegs.NewSite(args[0])
 		if err != nil {
 			panic(err)
 		}
 
 		mySite := &MySite{Site: site}
 
-		mySite = longlegs.Index(mySite, 2, indexLimit).(*MySite)
+		mySite = longlegs.Index(mySite, depth, limit).(*MySite)
 
 		printJSON(mySite)
 	},
 }
 
 func init() {
+	indexCmd.Flags().IntVarP(&depth, "depth", "d", 0, "Depth to crawl.")
+	indexCmd.Flags().IntVarP(&limit, "limit", "l", 0, "Number of page to limit crawl to.")
+	indexCmd.Flags().BoolVarP(&debug, "debug", "v", false, "Display debug messages.")
 	rootCmd.AddCommand(indexCmd)
 
 	// Here you will define your flags and configuration settings.

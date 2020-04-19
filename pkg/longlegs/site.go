@@ -1,8 +1,9 @@
 package longlegs
 
 import (
-	"log"
 	"net/url"
+
+	"github.com/rs/zerolog/log"
 )
 
 type Site struct {
@@ -14,12 +15,11 @@ type Site struct {
 func NewSite(urlStr string) (*Site, error) {
 	url, err := url.Parse(urlStr)
 	if err != nil {
-		log.Printf("Invalid URL: %s\n", urlStr)
-		log.Fatal(err)
+		log.Warn().Err(err).Msgf("Invalid URL: %s", urlStr)
 		return &Site{}, err
 	}
 	hostname := url.Hostname()
-	log.Printf("Index %s\n", hostname)
+	log.Debug().Msgf("Hostname %s", hostname)
 
 	history := make(History)
 	history[urlStr] = &HistoryEntry{Crawled: false}

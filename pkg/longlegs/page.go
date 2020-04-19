@@ -3,7 +3,6 @@ package longlegs
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -11,6 +10,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/rs/zerolog/log"
 )
 
 // Page is a structure used for serializing/deserializing data.
@@ -40,7 +40,7 @@ func NewPageFromUrl(site IIndex, urlStr string) Page {
 
 	url, err := url.Parse(urlStr)
 	if err != nil {
-		log.Printf("Invalid URL: %s\n", urlStr)
+		log.Info().Msgf("Invalid URL: %s", urlStr)
 		page.Error = err
 		return page
 	}
@@ -50,7 +50,7 @@ func NewPageFromUrl(site IIndex, urlStr string) Page {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url.String(), nil)
 	if err != nil {
-		log.Printf("Failed to Request %s\n", url.String())
+		log.Info().Msgf("Failed to Request %s", url.String())
 		page.Error = err
 		return page
 	}
@@ -60,7 +60,7 @@ func NewPageFromUrl(site IIndex, urlStr string) Page {
 	start := time.Now()
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Printf("Failed to Request %s\n", url.String())
+		log.Info().Msgf("Failed to Request %s", url.String())
 		page.Error = err
 		return page
 	}
@@ -69,7 +69,7 @@ func NewPageFromUrl(site IIndex, urlStr string) Page {
 
 	page.StatusCode = resp.StatusCode
 	if resp.StatusCode != 200 {
-		log.Printf("Page status %v: %s\n", resp.StatusCode, url.String())
+		log.Info().Msgf("Page status %v: %s", resp.StatusCode, url.String())
 		page.Error = err
 		return page
 	}
@@ -77,14 +77,14 @@ func NewPageFromUrl(site IIndex, urlStr string) Page {
 	page.Headers = resp.Header
 	contentType := strings.Split(resp.Header.Get("content-type"), ";")[0]
 	if contentType != "text/html" {
-		log.Printf("Not HTML: %s\n", url.String())
+		log.Info().Msgf("Not HTML: %s", url.String())
 		page.Error = errors.New("Not HTML")
 		return page
 	}
 
 	doc, err := goquery.NewDocumentFromResponse(resp)
 	if err != nil {
-		log.Printf("Failed to Parse %s\n", url.String())
+		log.Info().Msgf("Failed to Parse %s", url.String())
 		return Page{Error: err}
 	}
 
@@ -99,7 +99,7 @@ func NewPageFromFile(urlStr string, path string) Page {
 
 	url, err := url.Parse(urlStr)
 	if err != nil {
-		log.Printf("Invalid URL: %s\n", urlStr)
+		log.Info().Msgf("Invalid URL: %s", urlStr)
 		page.Error = err
 		return page
 	}
@@ -115,7 +115,7 @@ func NewPageFromFile(urlStr string, path string) Page {
 
 	doc, err := goquery.NewDocumentFromReader(reader)
 	if err != nil {
-		log.Printf("Failed to Parse %s\n", url.String())
+		log.Info().Msgf("Failed to Parse %s", url.String())
 		page.Error = err
 		return page
 	}
@@ -156,7 +156,7 @@ func (page Page) parseImage() Page {
 	if imageURLStr, exists = doc.Find("meta[property='og:image'],meta[name='twitter:image:src'],meta[name='twitter:image']").Attr("content"); !exists {
 		// log.Println("No Image")
 		// } else {
-		// log.Printf("IMAGE STR: %v\n", imageURLStr)
+		// log.Printf("IMAGE STR: %v", imageURLStr)
 	}
 	page.Image = imageURLStr
 	return page

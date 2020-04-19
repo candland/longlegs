@@ -1,9 +1,10 @@
 package longlegs
 
 import (
-	"log"
 	"net/url"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 )
 
 func CanonicalizeUrl(url *url.URL) string {
@@ -21,12 +22,12 @@ func CanonicalizeUrl(url *url.URL) string {
 func ResolveURL(base *url.URL, urlStr string) *url.URL {
 	u, err := url.Parse(urlStr)
 	if err != nil {
-		log.Print(err)
+		log.Info().Err(err).Msgf("Failed to parse %s; returning nil", urlStr)
 		return nil
 	}
 	if u.IsAbs() {
 		return removeFragment(u)
-		//fmt.Printf("Using base: %s\n", base.String())
+		//fmt.Printf("Using base: %s", base.String())
 	}
 	return removeFragment(base.ResolveReference(u))
 }
