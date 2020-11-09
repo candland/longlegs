@@ -20,6 +20,7 @@ func TestResolveURL(t *testing.T) {
 		{"https://candland.net", "https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css", "https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"},
 		{"https://candland.net", "/assets/css/main.css", "https://candland.net/assets/css/main.css"},
 		{"https://candland.net", "/assets/images/apple-touch-icon.png", "https://candland.net/assets/images/apple-touch-icon.png"},
+		{"https://candland.net", "http://|!|vcvUploadUrl|!|/assets/images/apple-touch-icon.png", ""},
 		// {"https://candland.net", "", ""},
 	}
 	for _, tt := range tests {

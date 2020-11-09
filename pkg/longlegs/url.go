@@ -22,8 +22,8 @@ func CanonicalizeUrl(url *url.URL) string {
 func ResolveURL(base *url.URL, urlStr string) *url.URL {
 	u, err := url.Parse(urlStr)
 	if err != nil {
-		log.Info().Err(err).Msgf("Failed to parse %s; returning nil", urlStr)
-		return nil
+		log.Info().Err(err).Msgf("Failed to parse %s; returning empty URL", urlStr)
+		return &url.URL{}
 	}
 	if u.IsAbs() {
 		return removeFragment(u)
