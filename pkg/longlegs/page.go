@@ -21,9 +21,6 @@ type Page struct {
 	Headers       map[string][]string `json:"headers"`
 	HTML          string              `json:"-"`
 	Document      *goquery.Document   `json:"-"`
-	Title         string              `json:"title"`
-	Description   string              `json:"description"`
-	Image         string              `json:"image,omitempty"`
 	Links         []string            `json:"links"`
 	ExternalLinks []string            `json:"external_links"`
 	Error         error               `json:"-"`
@@ -31,11 +28,10 @@ type Page struct {
 }
 
 func (page Page) String() string {
-	return fmt.Sprintf("Page: %s (%s)", page.Title, page.Url.String())
+	return fmt.Sprintf("Page: %s (%s)", page.Id, page.Url.String())
 }
 
 func NewPageFromUrl(site IIndex, urlStr string) Page {
-
 	page := Page{Id: urlStr}
 
 	url, err := url.Parse(urlStr)
@@ -44,7 +40,9 @@ func NewPageFromUrl(site IIndex, urlStr string) Page {
 		page.Error = err
 		return page
 	}
-	page.Id = CanonicalizeUrl(url)
+	baseUrl := site.GetUrl()
+	url = CanonicalizeUrl(&baseUrl, url)
+	page.Id = urlToId(url)
 	page.Url = url
 
 	client := &http.Client{}
@@ -89,7 +87,7 @@ func NewPageFromUrl(site IIndex, urlStr string) Page {
 	}
 
 	page.Document = doc
-	page = page.parseLinks().parseTitle().parseDescription().parseImage()
+	page = page.parseLinks()
 
 	return page
 }
@@ -103,7 +101,8 @@ func NewPageFromFile(urlStr string, path string) Page {
 		page.Error = err
 		return page
 	}
-	page.Id = CanonicalizeUrl(url)
+	url = CanonicalizeUrl(url, url)
+	page.Id = urlToId(url)
 	page.Url = url
 
 	reader, err := os.Open(path)
@@ -121,44 +120,8 @@ func NewPageFromFile(urlStr string, path string) Page {
 	}
 
 	page.Document = doc
-	page = page.parseLinks().parseTitle().parseDescription().parseImage()
+	page = page.parseLinks()
 
-	return page
-}
-
-func (page Page) parseTitle() Page {
-	title := page.Document.Find("title").First().Text()
-	page.Title = strings.TrimSpace(title)
-	return page
-}
-
-func (page Page) parseDescription() Page {
-	doc := page.Document
-
-	description := ""
-	metas := doc.Find("meta")
-	for i := range metas.Nodes {
-		s := metas.Eq(i)
-		if name, _ := s.Attr("name"); strings.EqualFold(name, "description") {
-			description, _ = s.Attr("content")
-			break
-		}
-	}
-	page.Description = description
-	return page
-}
-
-func (page Page) parseImage() Page {
-	imageURLStr := ""
-	exists := false
-	doc := page.Document
-
-	if imageURLStr, exists = doc.Find("meta[property='og:image'],meta[name='twitter:image:src'],meta[name='twitter:image']").Attr("content"); !exists {
-		// log.Println("No Image")
-		// } else {
-		// log.Printf("IMAGE STR: %v", imageURLStr)
-	}
-	page.Image = imageURLStr
 	return page
 }
 
@@ -188,6 +151,7 @@ func (page Page) parseLinks() Page {
 
 	for _, u := range links {
 		rurl := ResolveURL(page.Url, u)
+		rurl = CanonicalizeUrl(page.Url, rurl)
 		if rurl != nil {
 			if page.Url.Hostname() == rurl.Hostname() {
 				linksUniq[rurl.String()] = true

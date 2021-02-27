@@ -2,6 +2,7 @@ package longlegs
 
 import (
 	"net/url"
+	"strings"
 
 	"github.com/rs/zerolog/log"
 )
@@ -18,7 +19,8 @@ func NewSite(urlStr string) (*Site, error) {
 		log.Warn().Err(err).Msgf("Invalid URL: %s", urlStr)
 		return &Site{}, err
 	}
-	hostname := url.Hostname()
+	url = CanonicalizeUrl(url, nil)
+	hostname := strings.ToLower(url.Hostname())
 	log.Debug().Msgf("Hostname %s", hostname)
 
 	history := make(History)
