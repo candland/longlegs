@@ -7,18 +7,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func CanonicalizeUrlStr(url *url.URL) string {
-	// //host.lower[/path if not /][?query] - #nofragrment
-	can := strings.ToLower(url.Hostname())
-	if url.EscapedPath() != "/" {
-		can += url.EscapedPath()
-	}
-	if url.RawQuery != "" {
-		can += url.RawQuery
-	}
-	return can
-}
-
 // urlToId removes the Scheme and ://. Should call `CanonicalizeUrl` before calling.
 func urlToId(url *url.URL) string {
 	can := url.Host
