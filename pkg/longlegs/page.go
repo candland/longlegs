@@ -1,8 +1,10 @@
 package longlegs
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -15,23 +17,23 @@ import (
 
 // Page is a structure used for serializing/deserializing data.
 type Page struct {
-	Id            string              `json:"id"`
-	Url           *url.URL            `json:"url"`
-	StatusCode    int                 `json:"status_code"`
-	Headers       map[string][]string `json:"headers"`
-	HTML          string              `json:"-"`
-	Document      *goquery.Document   `json:"-"`
-	Links         []string            `json:"links"`
-	ExternalLinks []string            `json:"external_links"`
-	Error         error               `json:"-"`
-	Ms            int64               `json:"ms"`
+	Id            string            `json:"id"`
+	Url           *url.URL          `json:"url"`
+	StatusCode    int               `json:"status_code"`
+	Headers       http.Header       `json:"headers"`
+	Body          []byte            `json:"-"`
+	Document      *goquery.Document `json:"-"`
+	Links         []string          `json:"links"`
+	ExternalLinks []string          `json:"external_links"`
+	Error         error             `json:"-"`
+	Ms            int64             `json:"ms"`
 }
 
 func (page Page) String() string {
 	return fmt.Sprintf("Page: %s (%s)", page.Id, page.Url.String())
 }
 
-func NewPageFromUrl(site IIndex, urlStr string) Page {
+func (site *Site) NewRawPageFromUrl(urlStr string) Page {
 	page := Page{Id: urlStr}
 
 	url, err := url.Parse(urlStr)
@@ -73,16 +75,33 @@ func NewPageFromUrl(site IIndex, urlStr string) Page {
 	}
 
 	page.Headers = resp.Header
-	contentType := strings.Split(resp.Header.Get("content-type"), ";")[0]
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Info().Msgf("Failed to body %s", url.String())
+		page.Error = err
+		return page
+	}
+	page.Body = body
+
+	return page
+}
+
+func (site *Site) NewPageFromUrl(urlStr string) Page {
+	page := site.NewRawPageFromUrl(urlStr)
+
+	contentType := strings.Split(page.Headers.Get("content-type"), ";")[0]
 	if contentType != "text/html" {
-		log.Info().Msgf("Not HTML: %s", url.String())
+		log.Info().Msgf("Not HTML: %s", page.String())
 		page.Error = errors.New("Not HTML")
 		return page
 	}
 
-	doc, err := goquery.NewDocumentFromResponse(resp)
+	reader := bytes.NewReader(page.Body)
+
+	doc, err := goquery.NewDocumentFromReader(reader)
 	if err != nil {
-		log.Info().Msgf("Failed to Parse %s", url.String())
+		log.Info().Msgf("Failed to Parse %s", page.Url.String())
 		return Page{Error: err}
 	}
 
@@ -152,8 +171,9 @@ func (page Page) parseLinks() Page {
 	for _, u := range links {
 		rurl := ResolveURL(page.Url, u)
 		rurl = CanonicalizeUrl(page.Url, rurl)
+
 		if rurl != nil {
-			if page.Url.Hostname() == rurl.Hostname() {
+			if page.Url.Hostname() == rurl.Hostname() && rurl.Scheme == "http" || rurl.Scheme == "https" {
 				linksUniq[rurl.String()] = true
 			} else {
 				externalUniq[rurl.String()] = true

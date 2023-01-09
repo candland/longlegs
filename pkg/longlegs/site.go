@@ -5,12 +5,16 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog/log"
+	"github.com/temoto/robotstxt"
 )
 
 type Site struct {
-	Hostname string  `json:"id"`
-	Url      url.URL `json:"url"`
-	History  History `json:"history"`
+	Hostname     string                `json:"id"`
+	Url          url.URL               `json:"url"`
+	History      History               `json:"history"`
+	Robots       Robots                `json:"robots"`
+	robotsData   *robotstxt.RobotsData `json:"-"`
+	crawlerGroup *robotstxt.Group      `json:"-"`
 }
 
 func NewSite(urlStr string) (*Site, error) {
@@ -26,11 +30,19 @@ func NewSite(urlStr string) (*Site, error) {
 	history := make(History)
 	history[urlStr] = &HistoryEntry{Crawled: false}
 
-	return &Site{
+	site := &Site{
 		Hostname: hostname,
 		Url:      *url,
 		History:  history,
-	}, nil
+	}
+
+	site.robotsData = getRobots(site)
+	site.crawlerGroup = site.robotsData.FindGroup(site.UserAgent())
+
+	log.Info().Msgf("Found Crawler Group %s with delay of %d", site.crawlerGroup.Agent, site.crawlerGroup.CrawlDelay)
+	site.Robots = NewRobots(site.robotsData)
+
+	return site, nil
 }
 
 func (site *Site) GetHostname() string {
@@ -43,6 +55,10 @@ func (site *Site) GetUrl() url.URL {
 
 func (site *Site) GetHistory() History {
 	return site.History
+}
+
+func (site *Site) MakeUrl(path string) url.URL {
+	return *ResolveURL(&site.Url, path)
 }
 
 func (site *Site) GetStatus() (int, int, int) {

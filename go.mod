@@ -9,5 +9,6 @@ require (
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/viper v1.4.0
 	github.com/stretchr/testify v1.5.1
-	golang.org/x/sys v0.0.0-20190412213103-97732733099d // indirect
+	github.com/temoto/robotstxt v1.1.2
+	golang.org/x/sys v0.4.0 // indirect
 )
