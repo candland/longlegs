@@ -173,7 +173,7 @@ func (page Page) parseLinks() Page {
 		rurl = CanonicalizeUrl(page.Url, rurl)
 
 		if rurl != nil {
-			if page.Url.Hostname() == rurl.Hostname() && rurl.Scheme == "http" || rurl.Scheme == "https" {
+			if page.Url.Hostname() == rurl.Hostname() && (rurl.Scheme == "http" || rurl.Scheme == "https") {
 				linksUniq[rurl.String()] = true
 			} else {
 				externalUniq[rurl.String()] = true
