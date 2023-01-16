@@ -3,6 +3,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"time"
 
@@ -14,18 +15,19 @@ import (
 )
 
 type MySite struct {
-	*longlegs.Site
 	ProcessedCount int
 }
 
-func (site *MySite) Process(page longlegs.Page) longlegs.IIndex {
+func (site *MySite) Process(spider *longlegs.Spider, page longlegs.Page) {
 	site.ProcessedCount++
-	log.Printf("  %s took %d ms", page.Id, page.Ms)
-	// printJSON(page)
-	return site
+	log.Printf(">  %s took %d ms", page.Id, page.Ms)
 }
 
-/// flags
+func (site *MySite) Blocked(spider *longlegs.Spider, url url.URL) {
+	log.Printf(">  %s blocked", url.String())
+}
+
+// / flags
 var depth int
 var limit int
 
@@ -47,16 +49,15 @@ to quickly create a Cobra application.`,
 
 		log.Info().Msgf("Indexing %s", args[0])
 
-		site, err := longlegs.NewSite(args[0])
+		spider, err := longlegs.NewSpider("longlegs/0", args[0])
 		if err != nil {
 			panic(err)
 		}
 
-		mySite := &MySite{Site: site}
+		site := &MySite{}
+		spider.Crawl(site, depth, limit)
 
-		mySite = longlegs.Index(mySite, depth, limit).(*MySite)
-
-		printJSON(mySite)
+		printJSON(site)
 	},
 }
 

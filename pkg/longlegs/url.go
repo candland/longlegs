@@ -7,8 +7,20 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// url, err := url.Parse(urlStr)
+// if err != nil {
+//   log.Info().Msgf("Invalid URL: %s", urlStr)
+//   page.Error = ErrInvalidURL
+//   return page
+// }
+
+// TODO Move CanonicalizeUrl & Resolves into make url
+func (spider *Spider) MakeUrl(path string) *url.URL {
+	return ResolveURL(spider.url, path)
+}
+
 // urlToId removes the Scheme and ://. Should call `CanonicalizeUrl` before calling.
-func urlToId(url *url.URL) string {
+func urlToId(url url.URL) string {
 	can := url.Host
 	can += url.EscapedPath()
 	if url.RawQuery != "" {
@@ -18,9 +30,9 @@ func urlToId(url *url.URL) string {
 }
 
 // Try to canonicalize the url. Only changes URLs where the Hostname == the base.Hostname.
-func CanonicalizeUrl(base *url.URL, url *url.URL) *url.URL {
+func CanonicalizeUrl(base url.URL, url *url.URL) *url.URL {
 	if url == nil {
-		url = base
+		url = &base
 	}
 
 	// Make sure it's an absolute URL
@@ -57,11 +69,11 @@ func CanonicalizeUrl(base *url.URL, url *url.URL) *url.URL {
 }
 
 // Resolves URL to the base URL if the url isn't already absolute.
-func ResolveURL(base *url.URL, urlStr string) *url.URL {
+func ResolveURL(base url.URL, urlStr string) *url.URL {
 	u, err := url.Parse(urlStr)
 	if err != nil {
 		log.Info().Err(err).Msgf("Failed to parse %s; returning empty URL", urlStr)
-		return &url.URL{}
+		return nil
 	}
 	if !u.IsAbs() {
 		u = base.ResolveReference(u)
