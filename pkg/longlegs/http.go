@@ -65,14 +65,14 @@ func (spider *Spider) HeadNoRedirects(url url.URL) (*http.Response, error) {
 func (spider *Spider) EndpointExists(url url.URL) bool {
 
 	if url.Path == "" || url.Path == "/" {
-		log.Info().Msgf("URL is root %s", url)
+		log.Info().Msgf("URL is root %s", url.String())
 		return false
 	}
 
 	client := &http.Client{}
 	req, err := http.NewRequest("HEAD", url.String(), nil)
 	if err != nil {
-		log.Info().Msgf("Failed to Request %s", url)
+		log.Info().Msgf("Failed to Request %s", url.String())
 		return false
 	}
 
@@ -80,13 +80,13 @@ func (spider *Spider) EndpointExists(url url.URL) bool {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Info().Msgf("Failed to Request %s", url)
+		log.Info().Msgf("Failed to Request %s", url.String())
 		return false
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		log.Info().Msgf("Page status %v: %s", resp.StatusCode, url)
+		log.Info().Msgf("Page status %v: %s", resp.StatusCode, url.String())
 		return false
 	}
 

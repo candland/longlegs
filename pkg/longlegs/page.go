@@ -52,7 +52,7 @@ func (site *Spider) NewRawPageFromUrl(url url.URL) Page {
 
 	if resp.Request.URL.String() != page.Url.String() {
 		// Wonder if we need a history entry for this.
-		log.Warn().Msgf("Page was redirected to %s from %s", resp.Request.URL, page.Url)
+		log.Warn().Msgf("Page was redirected to %s from %s", resp.Request.URL.String(), page.Url.String())
 		page.setPageUrl(site.url, *resp.Request.URL)
 	}
 

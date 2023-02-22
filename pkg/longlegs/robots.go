@@ -57,7 +57,7 @@ func (spider *Spider) getRobots() *robotstxt.RobotsData {
 
 	page := spider.NewRawPageFromUrl(*url)
 
-	log.Info().Msgf("robots.txt\n%s", page.Body)
+	log.Debug().Msgf("robots.txt\n%s", page.Body)
 
 	robots, err := robotstxt.FromBytes(page.Body)
 	if err != nil {

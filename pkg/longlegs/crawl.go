@@ -24,7 +24,7 @@ func (spider *Spider) Crawl(site ISite, depth int, limit int) {
 			spider.history[nextUrl].Crawled = true
 
 			if page.Error != nil {
-				log.Warn().Err(page.Error).Msgf("Skipping %s", nextUrl)
+				log.Warn().Err(page.Error).Msgf("Skipping %s", nextUrl.String())
 			} else {
 				spider.history[nextUrl].HTML = true
 				site.Process(spider, page)

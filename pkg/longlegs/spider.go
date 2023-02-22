@@ -40,6 +40,10 @@ func (spider *Spider) History() History {
 	return spider.history
 }
 
+func (spider *Spider) UserAgent() string {
+	return spider.userAgent
+}
+
 func NewSpider(userAgent string, urlStr string) (*Spider, error) {
 	spider := &Spider{userAgent: userAgent}
 	spider.setUrl(urlStr)
