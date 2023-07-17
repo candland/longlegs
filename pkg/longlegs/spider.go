@@ -11,6 +11,7 @@ import (
 
 type ISite interface {
 	Process(*Spider, Page)
+	ProcessError(*Spider, Page)
 	Blocked(*Spider, url.URL)
 }
 

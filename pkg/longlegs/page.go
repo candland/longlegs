@@ -17,6 +17,7 @@ import (
 type Page struct {
 	Id            string            `json:"id"`
 	Url           url.URL           `json:"url"`
+	RedirectedUrl url.URL           `json:"redirected_url"`
 	StatusCode    int               `json:"status_code"`
 	Headers       http.Header       `json:"headers"`
 	Body          []byte            `json:"-"`
@@ -29,6 +30,10 @@ type Page struct {
 
 func (page Page) String() string {
 	return fmt.Sprintf("Page: %s (%s)", page.Id, page.Url.String())
+}
+
+func (page Page) WasRedirected() bool {
+	return page.RedirectedUrl != url.URL{}
 }
 
 func (page *Page) setPageUrl(baseUrl url.URL, url url.URL) {
@@ -51,8 +56,8 @@ func (site *Spider) NewRawPageFromUrl(url url.URL) Page {
 	page.Ms = ms
 
 	if resp.Request.URL.String() != page.Url.String() {
-		// Wonder if we need a history entry for this.
-		log.Warn().Msgf("Page was redirected to %s from %s", resp.Request.URL.String(), page.Url.String())
+		log.Debug().Msgf("Page was redirected to %s from %s", resp.Request.URL.String(), page.Url.String())
+		page.RedirectedUrl = page.Url
 		page.setPageUrl(site.url, *resp.Request.URL)
 	}
 

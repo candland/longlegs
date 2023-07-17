@@ -23,12 +23,20 @@ func (spider *Spider) addToHistory(level int, links []string) {
 		if url == nil {
 			continue
 		}
-		if _, exists := spider.history[*url]; !exists {
-			log.Debug().Msgf("Adding %s to history %d level.", link, level+1)
-			spider.history[*url] = &HistoryEntry{Crawled: false, Level: level + 1}
-		}
+		spider.addHistory(*url, level+1, false)
+		// if _, exists := spider.history[*url]; !exists {
+		//   log.Debug().Msgf("Adding %s to history %d level.", link, level + 1)
+		//   spider.history[*url] = &HistoryEntry{Crawled: false, Level: level + 1}
+		// }
 
 		spider.history[*url].Refs++
+	}
+}
+
+func (spider *Spider) addHistory(url url.URL, level int, crawled bool) {
+	if _, exists := spider.history[url]; !exists {
+		log.Debug().Msgf("Adding %s to history %d level.", url.String(), level)
+		spider.history[url] = &HistoryEntry{Crawled: crawled, Level: level}
 	}
 }
 
@@ -54,7 +62,7 @@ func (site *Spider) getStatus() (int, int, int) {
 
 	// calc counts
 	for _, hist := range site.history {
-		if hist.Crawled && hist.HTML {
+		if hist.Crawled {
 			done++
 		} else {
 			left++

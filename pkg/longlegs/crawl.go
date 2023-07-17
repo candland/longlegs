@@ -23,8 +23,14 @@ func (spider *Spider) Crawl(site ISite, depth int, limit int) {
 			page := spider.NewPageFromUrl(nextUrl)
 			spider.history[nextUrl].Crawled = true
 
+			if page.WasRedirected() {
+				log.Debug().Msgf("Redirected %s to %s", page.RedirectedUrl.String(), page.Url.String())
+				spider.addHistory(page.RedirectedUrl, level, true)
+			}
+
 			if page.Error != nil {
-				log.Warn().Err(page.Error).Msgf("Skipping %s", nextUrl.String())
+				log.Warn().Err(page.Error).Msgf("Page error %s", nextUrl.String())
+				site.ProcessError(spider, page)
 			} else {
 				spider.history[nextUrl].HTML = true
 				site.Process(spider, page)
