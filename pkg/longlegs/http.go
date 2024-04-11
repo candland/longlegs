@@ -1,6 +1,7 @@
 package longlegs
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -19,6 +20,13 @@ func (err *ErrRedirect) Error() string {
 
 // Call: `defer resp.Body.Close()`
 func (spider *Spider) Get(url url.URL) (*http.Response, int64, error) {
+	// TODO global last crawl check & wait here. Need to fix crawl.go
+	// if !spider.CanCrawl(url) {
+	// 	log.Error().Msg("Site blocked by robots.txt")
+	// 	return nil, 0, errors.New("URL blocked by robots.txt")
+	// }
+	// spider.WaitCrawlDelay()
+
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url.String(), nil)
 	if err != nil {
@@ -59,6 +67,33 @@ func (spider *Spider) HeadNoRedirects(url url.URL) (*http.Response, error) {
 		return nil, err
 	}
 	return resp, nil
+}
+
+// Make a HEAD request to the URL
+func (spider *Spider) Head(url url.URL) (*http.Response, int64, error) {
+	if !spider.CanCrawl(url) {
+		log.Error().Msg("Site blocked by robots.txt")
+		return nil, 0, errors.New("URL blocked by robots.txt")
+	}
+	spider.WaitCrawlDelay()
+
+	client := &http.Client{}
+	req, err := http.NewRequest("HEAD", url.String(), nil)
+	if err != nil {
+		log.Warn().Msgf("Failed to Request %s: %e", url.String(), err)
+		return nil, 0, err
+	}
+
+	req.Header.Set("User-Agent", spider.userAgent)
+
+	start := time.Now()
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Warn().Msgf("Failed to Request %s", url.String())
+		return nil, 0, err
+	}
+	ms := time.Now().Sub(start).Milliseconds()
+	return resp, ms, nil
 }
 
 // EndpointExists makes a HEAD request to make sure the URL exists and returns 200

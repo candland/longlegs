@@ -23,6 +23,11 @@ func (site *MySite) Process(spider *longlegs.Spider, page longlegs.Page) {
 	log.Printf(">  %s took %d ms", page.Id, page.Ms)
 }
 
+func (site *MySite) ProcessError(spider *longlegs.Spider, page longlegs.Page) {
+	site.ProcessedCount++
+	log.Printf(">  %s took %d ms", page.Id, page.Ms)
+}
+
 func (site *MySite) Blocked(spider *longlegs.Spider, url url.URL) {
 	log.Printf(">  %s blocked", url.String())
 }
