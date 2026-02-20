@@ -1,6 +1,7 @@
 package longlegs
 
 import (
+	"math/rand"
 	"net/url"
 	"time"
 
@@ -44,7 +45,21 @@ func (spider *Spider) CanCrawl(url url.URL) bool {
 }
 
 func (spider *Spider) CrawlDelay() time.Duration {
-	return spider.crawlerGroup.CrawlDelay
+	robotsDelay := spider.crawlerGroup.CrawlDelay
+
+	// Use the larger of robots.txt delay or delayMin
+	effectiveDelay := robotsDelay
+	if spider.delayMin > effectiveDelay {
+		effectiveDelay = spider.delayMin
+	}
+
+	// Add random range if specified
+	if spider.delayRange > 0 {
+		randomExtra := time.Duration(rand.Int63n(int64(spider.delayRange)))
+		return effectiveDelay + randomExtra
+	}
+
+	return effectiveDelay
 }
 
 func (spider *Spider) getRobots() *robotstxt.RobotsData {

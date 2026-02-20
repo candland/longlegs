@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/temoto/robotstxt"
@@ -23,6 +24,8 @@ type Spider struct {
 	robots       Robots
 	robotsData   *robotstxt.RobotsData
 	crawlerGroup *robotstxt.Group
+	delayMin     time.Duration
+	delayRange   time.Duration
 }
 
 func (spider *Spider) Robots() Robots {
@@ -45,8 +48,12 @@ func (spider *Spider) UserAgent() string {
 	return spider.userAgent
 }
 
-func NewSpider(userAgent string, urlStr string) (*Spider, error) {
-	spider := &Spider{userAgent: userAgent}
+func NewSpider(userAgent string, urlStr string, delayMin time.Duration, delayRange time.Duration) (*Spider, error) {
+	spider := &Spider{
+		userAgent:  userAgent,
+		delayMin:   delayMin,
+		delayRange: delayRange,
+	}
 	spider.setUrl(urlStr)
 
 	spider.robotsData = spider.getRobots()
@@ -71,7 +78,11 @@ func NewSpider(userAgent string, urlStr string) (*Spider, error) {
 
 	spider.history = history
 
-	log.Info().Msgf("Found Crawler Group %s with delay of %d", spider.crawlerGroup.Agent, spider.crawlerGroup.CrawlDelay)
+	log.Info().Msgf("Found Crawler Group %s with robots delay of %s, using min delay %s with range %s",
+		spider.crawlerGroup.Agent,
+		spider.crawlerGroup.CrawlDelay,
+		spider.delayMin,
+		spider.delayRange)
 	spider.robots = NewRobots(spider.robotsData)
 
 	return spider, nil

@@ -37,6 +37,8 @@ var depth int
 var limit int
 
 var debug bool
+var delayMin string
+var delayRange string
 
 // indexCmd represents the index command
 var indexCmd = &cobra.Command{
@@ -54,7 +56,18 @@ to quickly create a Cobra application.`,
 
 		log.Info().Msgf("Indexing %s", args[0])
 
-		spider, err := longlegs.NewSpider("longlegs/0", args[0])
+		// Parse delay flags
+		delayMinDuration, err := time.ParseDuration(delayMin)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("Invalid delay-min duration: %s", delayMin)
+		}
+
+		delayRangeDuration, err := time.ParseDuration(delayRange)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("Invalid delay-range duration: %s", delayRange)
+		}
+
+		spider, err := longlegs.NewSpider("longlegs/0", args[0], delayMinDuration, delayRangeDuration)
 		if err != nil {
 			panic(err)
 		}
@@ -70,6 +83,8 @@ func init() {
 	indexCmd.Flags().IntVarP(&depth, "depth", "d", 0, "Depth to crawl.")
 	indexCmd.Flags().IntVarP(&limit, "limit", "l", 0, "Number of page to limit crawl to.")
 	indexCmd.Flags().BoolVarP(&debug, "debug", "v", false, "Display debug messages.")
+	indexCmd.Flags().StringVar(&delayMin, "delay-min", "0s", "Minimum delay between requests (duration string, e.g. 100ms, 1s)")
+	indexCmd.Flags().StringVar(&delayRange, "delay-range", "0s", "Random delay range to add on top of minimum (duration string)")
 	rootCmd.AddCommand(indexCmd)
 
 	// Here you will define your flags and configuration settings.

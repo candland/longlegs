@@ -51,7 +51,7 @@ func (spider *Spider) Crawl(site ISite, depth int, limit int) {
 func (spider *Spider) WaitCrawlDelay() {
 	delay := spider.CrawlDelay()
 	if delay != 0 {
-		log.Info().Msgf("Waiting for crawl delay of %d", delay)
+		log.Debug().Msgf("Waiting for crawl delay of %s", delay)
 		time.Sleep(delay)
 	}
 }
