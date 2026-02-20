@@ -9,11 +9,5 @@ local: gomodgen
 clean:
 	rm -rf ./bin ./vendor Gopkg.lock
 
-deploy: clean build
-	sls deploy --verbose
-
-deploycli: clean build
-	# scp bin/kt kultivate:~/bin/
-
 gomodgen:
 	export GO111MODULE=on
