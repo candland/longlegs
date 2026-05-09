@@ -48,6 +48,11 @@ func (t *decompressingTransport) RoundTrip(req *http.Request) (*http.Response, e
 		return nil, err
 	}
 
+	// Skip decompression for HEAD requests (no body per HTTP spec)
+	if req.Method == http.MethodHead {
+		return resp, nil
+	}
+
 	// Wrap response body with appropriate decompressor
 	encoding := resp.Header.Get("Content-Encoding")
 	if encoding != "" {
