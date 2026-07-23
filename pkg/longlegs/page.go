@@ -62,20 +62,39 @@ func (site *Spider) NewRawPageFromUrl(url url.URL) Page {
 	}
 
 	page.StatusCode = resp.StatusCode
-	if resp.StatusCode != 200 {
-		log.Info().Msgf("Page status %d: %s", resp.StatusCode, url.String())
-		page.Error = ErrNotOk
-		return page
-	}
-
 	page.Headers = resp.Header
 
+	// Read the body for ALL status codes. This is necessary because CDN
+	// captcha challenges return 202 with a small HTML body containing a
+	// meta-refresh redirect. We need to read the body to detect and follow
+	// these redirects before deciding the page failed.
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Info().Msgf("Failed to read body %s", url.String())
 		page.Error = ErrCantReadBody
 		return page
 	}
+
+	// Check for meta-refresh redirects and captcha challenges. This handles
+	// CDN bot-protection (e.g. SiteGround's proof-of-work) by following the
+	// meta-refresh, solving the captcha, and re-requesting the original URL.
+	// For 202 captcha responses, this transforms the body into real content.
+	// Only run for HTML responses — non-HTML content (images, PDFs, CSS, JS)
+	// never contains meta-refresh tags and parsing them as HTML is wasteful.
+	// An empty content-type is treated as HTML to handle misconfigured servers.
+	contentType := strings.Split(resp.Header.Get("content-type"), ";")[0]
+	if contentType == "text/html" || contentType == "" {
+		body, page.StatusCode, page.Headers = site.handleMetaRefresh(*resp.Request.URL, body, page.StatusCode, page.Headers)
+	}
+
+	// Now check the (potentially updated) status code. After captcha solving,
+	// the re-requested page should have a 2xx status.
+	if page.StatusCode < 200 || page.StatusCode >= 300 {
+		log.Info().Msgf("Page status %d: %s", page.StatusCode, url.String())
+		page.Error = ErrNotOk
+		return page
+	}
+
 	page.Body = body
 
 	return page

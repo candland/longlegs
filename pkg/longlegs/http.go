@@ -122,6 +122,8 @@ func (spider *Spider) Get(url url.URL) (*http.Response, int64, error) {
 		Transport: &decompressingTransport{
 			Transport: http.DefaultTransport,
 		},
+		Jar:     spider.cookieJar,
+		Timeout: spider.requestTimeout,
 	}
 	req, err := http.NewRequest("GET", url.String(), nil)
 	if err != nil {
@@ -146,6 +148,8 @@ func (spider *Spider) HeadNoRedirects(url url.URL) (*http.Response, error) {
 		Transport: &decompressingTransport{
 			Transport: http.DefaultTransport,
 		},
+		Jar:     spider.cookieJar,
+		Timeout: spider.requestTimeout,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			log.Warn().Msgf("Redirected %v", req.Response.Header.Get("Location"))
 			return &ErrRedirect{Location: req.Response.Header.Get("Location")}
@@ -179,6 +183,8 @@ func (spider *Spider) Head(url url.URL) (*http.Response, int64, error) {
 		Transport: &decompressingTransport{
 			Transport: http.DefaultTransport,
 		},
+		Jar:     spider.cookieJar,
+		Timeout: spider.requestTimeout,
 	}
 	req, err := http.NewRequest("HEAD", url.String(), nil)
 	if err != nil {
@@ -210,6 +216,8 @@ func (spider *Spider) EndpointExists(url url.URL) bool {
 		Transport: &decompressingTransport{
 			Transport: http.DefaultTransport,
 		},
+		Jar:     spider.cookieJar,
+		Timeout: spider.requestTimeout,
 	}
 	req, err := http.NewRequest("HEAD", url.String(), nil)
 	if err != nil {
@@ -226,7 +234,7 @@ func (spider *Spider) EndpointExists(url url.URL) bool {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		log.Info().Msgf("Page status %v: %s", resp.StatusCode, url.String())
 		return false
 	}
