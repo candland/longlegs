@@ -143,7 +143,27 @@ func (spider *Spider) Get(url url.URL) (*http.Response, int64, error) {
 	return resp, ms, nil
 }
 
-func (spider *Spider) HeadNoRedirects(url url.URL) (*http.Response, error) {
+// sameHostRedirect reports whether to and from are the same site. Hostname
+// comparison ignores ports, so example.com:443 is not a different site from
+// example.com.
+func sameHostRedirect(from, to *url.URL) bool {
+	if from == nil || to == nil {
+		return false
+	}
+	fromHost := from.Hostname()
+	toHost := to.Hostname()
+	if fromHost == "" || toHost == "" {
+		return false
+	}
+	return strings.EqualFold(fromHost, toHost)
+}
+
+// HeadNoRedirects issues a HEAD request and returns ErrRedirect instead of
+// following redirects. A same-host canonical redirect is not logged: the
+// Location may still echo a query string, and a warning that prints that
+// Location reads as an off-site redirect.
+func (spider *Spider) HeadNoRedirects(requestURL url.URL) (*http.Response, error) {
+	sameHost := false
 	client := &http.Client{
 		Transport: &decompressingTransport{
 			Transport: http.DefaultTransport,
@@ -151,13 +171,28 @@ func (spider *Spider) HeadNoRedirects(url url.URL) (*http.Response, error) {
 		Jar:     spider.cookieJar,
 		Timeout: spider.requestTimeout,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			log.Warn().Msgf("Redirected %v", req.Response.Header.Get("Location"))
-			return &ErrRedirect{Location: req.Response.Header.Get("Location")}
+			location := ""
+			if req != nil && req.Response != nil {
+				location = req.Response.Header.Get("Location")
+			}
+			var from *url.URL
+			if len(via) > 0 && via[len(via)-1] != nil {
+				from = via[len(via)-1].URL
+			}
+			var to *url.URL
+			if req != nil {
+				to = req.URL
+			}
+			sameHost = sameHostRedirect(from, to)
+			if !sameHost {
+				log.Warn().Msgf("Redirected %v", location)
+			}
+			return &ErrRedirect{Location: location}
 		},
 	}
-	req, err := http.NewRequest("HEAD", url.String(), nil)
+	req, err := http.NewRequest("HEAD", requestURL.String(), nil)
 	if err != nil {
-		log.Info().Msgf("Failed to Request %s: %e", url.String(), err)
+		log.Info().Msgf("Failed to Request %s: %e", requestURL.String(), err)
 		return nil, err
 	}
 
@@ -165,7 +200,11 @@ func (spider *Spider) HeadNoRedirects(url url.URL) (*http.Response, error) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Info().Msgf("Failed to Request %s", url.String())
+		// The request URL is the other half of the redirect log line. Skip it
+		// for a same-host canonical hop; that hop is not a failed request.
+		if !sameHost {
+			log.Info().Msgf("Failed to Request %s", requestURL.String())
+		}
 		return nil, err
 	}
 	return resp, nil
